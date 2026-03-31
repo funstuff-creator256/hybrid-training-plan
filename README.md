@@ -1,1 +1,0 @@
-# hybrid-training-plan
