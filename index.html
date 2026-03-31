@@ -309,6 +309,95 @@
     white-space: nowrap;
   }
   .stat-chip span { color: var(--accent); font-weight: 500; }
+
+  /* EXERCISE CARD (detailed) */
+  .ex-card {
+    background: var(--surface);
+    margin-bottom: 1px;
+    padding: 14px;
+  }
+  .ex-card:first-child { border-radius: 6px 6px 0 0; }
+  .ex-card:last-child { border-radius: 0 0 6px 6px; margin-bottom: 0; }
+  .ex-card:only-child { border-radius: 6px; }
+
+  .ex-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .ex-card-left {}
+  .ex-card-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .ex-card-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .ex-card-alt {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .ex-card-stats {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .stat-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 5px 8px;
+    min-width: 44px;
+  }
+  .stat-pill-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-pill-val.blue { color: var(--cardio); }
+  .stat-pill-lbl {
+    font-size: 0.58rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+  }
+
+  .ex-focus {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+  }
+  .focus-tag {
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 7px;
+    line-height: 1.3;
+  }
 </style>
 </head>
 <body>
@@ -332,43 +421,37 @@
 const days = [
   {
     id:'mon', name:'Mon', label:'Push', type:'strength',
-    title:['Push','Chest Focus'], duration:'45–55',
-    meta:'Warm up 5 min · Pull-aparts, arm circles',
-    sections:[
-      {title:'Compound lifts', exercises:[
-        {name:'Barbell bench press', detail:'4 × 5'},
-        {name:'Incline dumbbell press', detail:'3 × 8–10'},
-      ]},
-      {title:'Accessory', exercises:[
-        {name:'Cable chest fly', detail:'3 × 12–15'},
-        {name:'Dips (chest lean)', detail:'3 × 10–12'},
-        {name:'Landmine press', detail:'3 × 10 ea.'},
-      ]},
-    ],
-    tip:'<strong>Rest 90–120 s</strong> on compounds, <strong>60 s</strong> on accessories to stay in the window.'
+    title:['Push','Strength Focus'], duration:'60–75',
+    meta:'6 exercises · Warm up 5 min',
+    tip:'<strong>Heavy compounds first</strong> while CNS is fresh. Keep isolation work controlled — no momentum.',
+    exercises:[
+      {num:'01', name:'Flat Bench Press', alt:'Primary upper body strength lift', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Strong setup','Controlled descent','Explosive press','Chest leads']},
+      {num:'02', name:'Incline Bench Press', alt:'Upper chest strength and width', sets:'3–4', reps:'6–8', rest:'90 s', focus:['Low incline','Deep stretch','Controlled press']},
+      {num:'03', name:'Overhead Press', alt:'or Machine Shoulder Press', sets:'3–4', reps:'5–6', rest:'90 s', focus:['Core braced','No leg drive','Smooth bar path']},
+      {num:'04', name:'Chest Isolation', alt:'Pec deck or cable fly', sets:'3', reps:'12–15', rest:'60 s', focus:['Slow stretch','1 s squeeze at top']},
+      {num:'05', name:'Lateral Raises', alt:'Shoulder width and balance', sets:'3', reps:'12–15', rest:'45–60 s', focus:['Light weight','Controlled tempo','No swinging']},
+      {num:'06', name:'Triceps Compound', alt:'Overhead cable extension or dips', sets:'3', reps:'8–12', rest:'60 s', focus:['Full stretch','Stable elbows','Strong lockout']},
+    ]
   },
   {
     id:'tue', name:'Tue', label:'Pull', type:'strength',
-    title:['Pull','Back + Biceps'], duration:'45–55',
-    meta:'Warm up 5 min · Face pulls, shoulder rotations',
-    sections:[
-      {title:'Compound lifts', exercises:[
-        {name:'Weighted pull-ups', detail:'4 × 5–6'},
-        {name:'Barbell bent-over row', detail:'4 × 6–8'},
-      ]},
-      {title:'Accessory', exercises:[
-        {name:'Single-arm dumbbell row', detail:'3 × 10 ea.'},
-        {name:'Cable face pull', detail:'3 × 15'},
-        {name:'Barbell curl', detail:'3 × 10'},
-        {name:'Hammer curl', detail:'2 × 12'},
-      ]},
-    ],
-    tip:'Focus on <strong>full scapular retraction</strong> on every row — quality over heavy.'
+    title:['Pull','Strength Focus'], duration:'60–75',
+    meta:'6 exercises · Warm up 5 min',
+    tip:'<strong>Drive elbows, not hands</strong> on all pulls. The biceps are a finisher — don\'t let them take over.',
+    exercises:[
+      {num:'01', name:'Pull Ups', alt:'or Lat Pulldown', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Drive elbows down','Full stretch at top','No momentum']},
+      {num:'02', name:'Chest Supported Row', alt:'or Barbell Row', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Neutral spine','Strong scapular squeeze']},
+      {num:'03', name:'Seated Cable Row', alt:'or Machine Row', sets:'3', reps:'6–8', rest:'90 s', focus:['Control the eccentric','Don\'t turn into a biceps curl']},
+      {num:'04', name:'Face Pulls', alt:'or Rear Delt Flys', sets:'3', reps:'12–15', rest:'60 s', focus:['Elbows high','External rotation at finish']},
+      {num:'05', name:'Shrugs', alt:'or Farmer Carries (30–40 s)', sets:'3–4', reps:'12–20', rest:'60 s', focus:['Pause at top','No rolling shoulders']},
+      {num:'06', name:'EZ Bar Curl', alt:'or Dumbbell Curl', sets:'3', reps:'6–10', rest:'60 s', focus:['Full stretch','Controlled tempo']},
+    ]
   },
   {
     id:'wed', name:'Wed', label:'Run', type:'cardio',
     title:['Run','Long Slow Run'], duration:'50–70',
     meta:'Dynamic warm-up 5 min · Leg swings, high knees',
+    tip:'<strong>Stay easy</strong> — legs need to be ready for Thursday\'s leg day.',
     sections:[
       {title:'Session structure', exercises:[
         {name:'Warm-up jog', detail:'5 min easy'},
@@ -381,25 +464,20 @@ const days = [
         {name:'Effort feel', detail:'4–5 / 10'},
         {name:'Target HR', detail:'180 − age'},
       ]},
-    ],
-    tip:'<strong>Stay easy</strong> — legs need to be ready for Thursday\'s leg day.'
+    ]
   },
   {
     id:'thu', name:'Thu', label:'Legs', type:'strength',
-    title:['Legs','Quad + Posterior'], duration:'50–60',
-    meta:'Warm up 5 min · Leg swings, hip circles, goblet squat',
-    sections:[
-      {title:'Compound lifts', exercises:[
-        {name:'Back squat', detail:'4 × 5'},
-        {name:'Romanian deadlift', detail:'3 × 8–10'},
-      ]},
-      {title:'Accessory', exercises:[
-        {name:'Walking lunges', detail:'3 × 12 ea.'},
-        {name:'Leg press', detail:'3 × 12–15'},
-        {name:'Seated calf raise', detail:'4 × 15'},
-      ]},
-    ],
-    tip:'Ran yesterday — <strong>warm up thoroughly</strong>. First sets may feel heavy; they\'ll loosen up.'
+    title:['Legs','Strength Focus'], duration:'60–70',
+    meta:'5 exercises · Warm up 5 min',
+    tip:'<strong>Hip hinge on the RDL</strong> — don\'t rush the eccentric. Let the hamstrings stretch fully.',
+    exercises:[
+      {num:'01', name:'Romanian Deadlift', alt:'Posterior chain strength', sets:'4', reps:'5–8', rest:'2 min', focus:['Hip hinge','Hamstring stretch','Neutral spine','Don\'t rush eccentric']},
+      {num:'02', name:'Leg Press', alt:'Primary quad compound', sets:'4', reps:'6–10', rest:'2 min', focus:['Full depth under control','Drive through mid foot and heels','No aggressive lockout']},
+      {num:'03', name:'Leg Extension Machine', alt:'Quad isolation', sets:'3', reps:'10–15', rest:'60–90 s', focus:['1 s squeeze at top','Slow controlled lowering']},
+      {num:'04', name:'Leg Curl Machine', alt:'Hamstring isolation', sets:'3', reps:'10–15', rest:'60–90 s', focus:['Full range of motion','Strong squeeze','No momentum']},
+      {num:'05', name:'Standing Calf Raises', alt:'', sets:'4', reps:'12–20', rest:'45–60 s', focus:['Full stretch at bottom','Pause at top']},
+    ]
   },
   {
     id:'fri', name:'Fri', label:'Rest', type:'rest',
@@ -426,6 +504,7 @@ const days = [
   {
     id:'sun-a', name:'Sun', label:'Ride', type:'cardio',
     title:['Long','Ride'], duration:'60–90', meta:'Indoor or outdoor · Week A',
+    tip:'<strong>Zone 2 builds mitochondrial density</strong> — the engine of hybrid performance. Resist going hard.',
     sections:[
       {title:'Session structure', exercises:[
         {name:'Easy spin warm-up', detail:'10 min · Z2'},
@@ -435,12 +514,12 @@ const days = [
       {title:'Optional finisher', exercises:[
         {name:'Sprint efforts', detail:'4 × 20 s all-out'},
       ]},
-    ],
-    tip:'<strong>Zone 2 builds mitochondrial density</strong> — the engine of hybrid performance. Resist going hard.'
+    ]
   },
   {
     id:'sun-b', name:'Sun', label:'Run', type:'cardio',
     title:['Long','Run'], duration:'60–80', meta:'Easy aerobic effort · Week B',
+    tip:'Week B long run. <strong>Wednesday\'s run builds the base</strong> that makes this feel manageable.',
     sections:[
       {title:'Session structure', exercises:[
         {name:'Warm-up jog', detail:'5 min easy'},
@@ -453,8 +532,7 @@ const days = [
         {name:'Effort feel', detail:'4–5 / 10'},
         {name:'Target HR', detail:'180 − age'},
       ]},
-    ],
-    tip:'Week B long run. <strong>Wednesday\'s run builds the base</strong> that makes this feel manageable.'
+    ]
   },
 ];
 
@@ -478,6 +556,45 @@ function setDay(id) { activeDay = id; renderAll(); }
 function ac(type) { return type==='cardio'?'blue':type==='rest'?'gray':''; }
 function hl(type) { return type==='cardio'?'hl-blue':type==='rest'?'hl-gray':'hl'; }
 
+function renderExercises(d, a) {
+  if (d.exercises) {
+    return `<div class="exercise-list">${d.exercises.map(e => `
+      <div class="ex-card">
+        <div class="ex-card-header">
+          <div class="ex-card-left">
+            <div class="ex-card-num">Exercise ${e.num}</div>
+            <div class="ex-card-name">${e.name}</div>
+            ${e.alt ? `<div class="ex-card-alt">${e.alt}</div>` : ''}
+          </div>
+          <div class="ex-card-stats">
+            <div class="stat-pill">
+              <span class="stat-pill-val ${a}">${e.sets}</span>
+              <span class="stat-pill-lbl">sets</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-val ${a}">${e.reps}</span>
+              <span class="stat-pill-lbl">reps</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-pill-val gray">${e.rest}</span>
+              <span class="stat-pill-lbl">rest</span>
+            </div>
+          </div>
+        </div>
+        <div class="ex-focus">${e.focus.map(f=>`<span class="focus-tag">${f}</span>`).join('')}</div>
+      </div>`).join('')}</div>`;
+  }
+  return d.sections.map(s=>`
+    <div class="section">
+      <div class="section-title">${s.title}</div>
+      <div class="exercise-list">${s.exercises.map(e=>`
+        <div class="ex-row">
+          <span class="ex-name">${e.name}</span>
+          <span class="ex-detail ${a}">${e.detail}</span>
+        </div>`).join('')}</div>
+    </div>`).join('');
+}
+
 function renderNav() {
   document.getElementById('dayNav').innerHTML = visibleDays().map(d=>`
     <div class="day-pill type-${d.type}${d.id===activeDay?' active':''}" onclick="setDay('${d.id}')">
@@ -497,15 +614,7 @@ function renderMain() {
           <div class="rest-icon">${c.icon}</div>
           <div><div class="rest-text-title">${c.title}</div><div class="rest-text-desc">${c.desc}</div></div>
         </div>`).join('')}</div>`
-    : d.sections.map(s=>`
-        <div class="section">
-          <div class="section-title">${s.title}</div>
-          <div class="exercise-list">${s.exercises.map(e=>`
-            <div class="ex-row">
-              <span class="ex-name">${e.name}</span>
-              <span class="ex-detail ${a}">${e.detail}</span>
-            </div>`).join('')}</div>
-        </div>`).join('');
+    : renderExercises(d, a);
 
   document.getElementById('mainContent').innerHTML = `
     <div class="day-content visible">
