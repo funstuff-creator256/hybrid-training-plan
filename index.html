@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0e0f11">
-<title>Matt Training Plan 2026</title>
+<title>My Hybrid Training 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -404,11 +404,7 @@
 
 <header>
   <div class="logo">Hybrid<span>Train</span></div>
-  <div class="week-switcher">
-    <span class="week-lbl">Sun</span>
-    <button class="week-btn active" id="wkA" onclick="setWeek('A')">Ride</button>
-    <button class="week-btn" id="wkB" onclick="setWeek('B')">Run</button>
-  </div>
+  <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);">Intermediate · Hybrid</div>
 </header>
 
 <nav class="day-nav" id="dayNav"></nav>
@@ -502,56 +498,50 @@ const days = [
     tip:'Two rest days before Sunday means <strong>genuinely fresh legs</strong> for the long session.'
   },
   {
-    id:'sun-a', name:'Sun', label:'Ride', type:'cardio',
-    title:['Long','Ride'], duration:'60–90', meta:'Indoor or outdoor · Week A',
-    tip:'<strong>Zone 2 builds mitochondrial density</strong> — the engine of hybrid performance. Resist going hard.',
-    sections:[
-      {title:'Session structure', exercises:[
-        {name:'Easy spin warm-up', detail:'10 min · Z2'},
-        {name:'Steady endurance block', detail:'45–65 min · Z2–3'},
-        {name:'Cool-down spin', detail:'10 min easy'},
-      ]},
-      {title:'Optional finisher', exercises:[
-        {name:'Sprint efforts', detail:'4 × 20 s all-out'},
-      ]},
-    ]
-  },
-  {
-    id:'sun-b', name:'Sun', label:'Run', type:'cardio',
-    title:['Long','Run'], duration:'60–80', meta:'Easy aerobic effort · Week B',
-    tip:'Week B long run. <strong>Wednesday\'s run builds the base</strong> that makes this feel manageable.',
-    sections:[
-      {title:'Session structure', exercises:[
-        {name:'Warm-up jog', detail:'5 min easy'},
-        {name:'Long slow run', detail:'50–65 min · Z2'},
-        {name:'Cool-down walk', detail:'5–10 min'},
-        {name:'Static stretch', detail:'5 min'},
-      ]},
-      {title:'Pace guide', exercises:[
-        {name:'Talk test', detail:'Full sentences, no gasping'},
-        {name:'Effort feel', detail:'4–5 / 10'},
-        {name:'Target HR', detail:'180 − age'},
-      ]},
-    ]
+    id:'sun', name:'Sun', label:'Long', type:'cardio',
+    title:['Long','Session'], duration:'60–90', meta:'Alternate each week',
+    tip:'<strong>Zone 2 is the goal</strong> — both ride and run build your aerobic engine. Resist going hard.',
+    sunData: {
+      ride: {
+        title:['Long','Ride'], duration:'60–90', meta:'Indoor or outdoor · Week A',
+        sections:[
+          {title:'Session structure', exercises:[
+            {name:'Easy spin warm-up', detail:'10 min · Z2'},
+            {name:'Steady endurance block', detail:'45–65 min · Z2–3'},
+            {name:'Cool-down spin', detail:'10 min easy'},
+          ]},
+          {title:'Optional finisher', exercises:[
+            {name:'Sprint efforts', detail:'4 × 20 s all-out'},
+          ]},
+        ],
+        tip:'<strong>Zone 2 builds mitochondrial density</strong> — the engine of hybrid performance. Resist going hard.'
+      },
+      run: {
+        title:['Long','Run'], duration:'60–80', meta:'Easy aerobic effort · Week B',
+        sections:[
+          {title:'Session structure', exercises:[
+            {name:'Warm-up jog', detail:'5 min easy'},
+            {name:'Long slow run', detail:'50–65 min · Z2'},
+            {name:'Cool-down walk', detail:'5–10 min'},
+            {name:'Static stretch', detail:'5 min'},
+          ]},
+          {title:'Pace guide', exercises:[
+            {name:'Talk test', detail:'Full sentences, no gasping'},
+            {name:'Effort feel', detail:'4–5 / 10'},
+            {name:'Target HR', detail:'180 − age'},
+          ]},
+        ],
+        tip:'Week B long run. <strong>Wednesday\'s run builds the base</strong> that makes this feel manageable.'
+      }
+    }
   },
 ];
 
-let activeWeek = 'A', activeDay = 'mon';
-
-function visibleDays() {
-  const sun = days.find(d => d.id === (activeWeek==='A' ? 'sun-a' : 'sun-b'));
-  return [...days.filter(d => d.id !== 'sun-a' && d.id !== 'sun-b'), sun];
-}
-
-function setWeek(w) {
-  activeWeek = w;
-  document.getElementById('wkA').className = 'week-btn'+(w==='A'?' active':'');
-  document.getElementById('wkB').className = 'week-btn'+(w==='B'?' active':'');
-  if (activeDay==='sun-a'||activeDay==='sun-b') activeDay = w==='A'?'sun-a':'sun-b';
-  renderAll();
-}
+let activeDay = 'mon';
+let sunMode = 'ride'; // 'ride' or 'run'
 
 function setDay(id) { activeDay = id; renderAll(); }
+function setSunMode(m) { sunMode = m; renderAll(); }
 
 function ac(type) { return type==='cardio'?'blue':type==='rest'?'gray':''; }
 function hl(type) { return type==='cardio'?'hl-blue':type==='rest'?'hl-gray':'hl'; }
@@ -596,7 +586,7 @@ function renderExercises(d, a) {
 }
 
 function renderNav() {
-  document.getElementById('dayNav').innerHTML = visibleDays().map(d=>`
+  document.getElementById('dayNav').innerHTML = days.map(d=>`
     <div class="day-pill type-${d.type}${d.id===activeDay?' active':''}" onclick="setDay('${d.id}')">
       <span class="pill-name">${d.name}</span>
       <span class="pill-label">${d.label}</span>
@@ -605,29 +595,44 @@ function renderNav() {
 }
 
 function renderMain() {
-  const d = visibleDays().find(x=>x.id===activeDay)||visibleDays()[0];
-  const a=ac(d.type), h=hl(d.type);
+  const d = days.find(x=>x.id===activeDay)||days[0];
+  const a = ac(d.type), h = hl(d.type);
 
-  let body = d.rest
-    ? `<div class="rest-grid">${d.restCards.map(c=>`
-        <div class="rest-card">
-          <div class="rest-icon">${c.icon}</div>
-          <div><div class="rest-text-title">${c.title}</div><div class="rest-text-desc">${c.desc}</div></div>
-        </div>`).join('')}</div>`
-    : renderExercises(d, a);
+  let title = d.title, duration = d.duration, meta = d.meta, tip = d.tip;
+  let body = '';
+
+  if (d.rest) {
+    body = `<div class="rest-grid">${d.restCards.map(c=>`
+      <div class="rest-card">
+        <div class="rest-icon">${c.icon}</div>
+        <div><div class="rest-text-title">${c.title}</div><div class="rest-text-desc">${c.desc}</div></div>
+      </div>`).join('')}</div>`;
+  } else if (d.sunData) {
+    const sd = d.sunData[sunMode];
+    title = sd.title; duration = sd.duration; meta = sd.meta; tip = sd.tip;
+    const toggle = `
+      <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;">
+        <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-right:4px;">This week</span>
+        <button onclick="setSunMode('ride')" style="font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border:1px solid ${sunMode==='ride'?'var(--cardio)':'var(--border2)'};background:${sunMode==='ride'?'var(--cardio)':'transparent'};color:${sunMode==='ride'?'#0e0f11':'var(--muted)'};border-radius:4px;cursor:pointer;min-height:36px;">Ride</button>
+        <button onclick="setSunMode('run')" style="font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border:1px solid ${sunMode==='run'?'var(--cardio)':'var(--border2)'};background:${sunMode==='run'?'var(--cardio)':'transparent'};color:${sunMode==='run'?'#0e0f11':'var(--muted)'};border-radius:4px;cursor:pointer;min-height:36px;">Run</button>
+      </div>`;
+    body = toggle + renderExercises(sd, a);
+  } else {
+    body = renderExercises(d, a);
+  }
 
   document.getElementById('mainContent').innerHTML = `
     <div class="day-content visible">
       <div class="content-header">
-        <h2><span class="${h}">${d.title[0]}</span><br>${d.title[1]}</h2>
+        <h2><span class="${h}">${title[0]}</span><br>${title[1]}</h2>
         <div class="meta-block">
-          <div class="meta-duration ${a}">${d.duration}</div>
+          <div class="meta-duration ${a}">${duration}</div>
           <span class="meta-lbl">minutes</span>
-          <div class="meta-note">${d.meta}</div>
+          <div class="meta-note">${meta}</div>
         </div>
       </div>
       ${body}
-      <div class="tip ${a}">${d.tip}</div>
+      <div class="tip ${a}">${tip}</div>
       <div class="stats-row">
         <div class="stat-chip">Protein <span>1.6–2.2 g/kg</span></div>
         <div class="stat-chip">Sleep <span>7–9 hrs</span></div>
@@ -637,8 +642,8 @@ function renderMain() {
 }
 
 function renderAll() { renderNav(); renderMain(); }
-window.setWeek = setWeek;
 window.setDay = setDay;
+window.setSunMode = setSunMode;
 renderAll();
 </script>
 </body>
