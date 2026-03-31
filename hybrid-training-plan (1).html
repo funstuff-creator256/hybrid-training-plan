@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0e0f11">
+<title>Hybrid Train</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0e0f11;
+    --surface: #161719;
+    --surface2: #1e2024;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #f0ede8;
+    --muted: #7a7870;
+    --accent: #c8f050;
+    --cardio: #50c8f0;
+    --rest: #7a7870;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 300;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    flex-shrink: 0;
+    padding: calc(var(--safe-top) + 14px) 16px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .logo span { color: var(--accent); }
+
+  .week-switcher { display: flex; gap: 4px; align-items: center; }
+
+  .week-lbl {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 2px;
+  }
+
+  .week-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.15s;
+    min-height: 36px;
+  }
+  .week-btn.active { background: var(--accent); color: #0e0f11; border-color: var(--accent); }
+
+  /* DAY NAV */
+  .day-nav {
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    padding: 10px 12px 0;
+  }
+
+  .day-pill {
+    cursor: pointer;
+    padding: 8px 2px 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    text-align: center;
+    border-radius: 6px;
+    transition: border-color 0.15s;
+    user-select: none;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .day-pill:active { opacity: 0.65; }
+  .day-pill.active { border-color: var(--accent); }
+  .day-pill.active .pill-dot { background: var(--accent); }
+  .day-pill.type-cardio.active { border-color: var(--cardio); }
+  .day-pill.type-cardio.active .pill-dot { background: var(--cardio); }
+  .day-pill.type-rest.active { border-color: var(--rest); }
+  .day-pill.type-rest.active .pill-dot { background: var(--rest); }
+
+  .pill-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .pill-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text);
+    display: block;
+    line-height: 1.15;
+  }
+
+  .pill-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--border2);
+    margin-top: 4px;
+    transition: background 0.15s;
+  }
+
+  /* SCROLL AREA */
+  .scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 16px 14px calc(var(--safe-bottom) + 16px);
+  }
+
+  .day-content { display: none; }
+  .day-content.visible { display: block; animation: fadeUp 0.25s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CONTENT HEADER */
+  .content-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .content-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.95;
+  }
+
+  .content-header h2 .hl { color: var(--accent); }
+  .content-header h2 .hl-blue { color: var(--cardio); }
+  .content-header h2 .hl-gray { color: var(--muted); }
+
+  .meta-block { text-align: right; flex-shrink: 0; }
+
+  .meta-duration {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .meta-duration.blue { color: var(--cardio); }
+  .meta-duration.gray { color: var(--muted); }
+
+  .meta-lbl {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-top: 1px;
+  }
+
+  .meta-note {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 5px;
+    line-height: 1.4;
+    max-width: 140px;
+    text-align: right;
+  }
+
+  /* SECTIONS */
+  .section { margin-bottom: 16px; }
+
+  .section-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* EXERCISE ROWS */
+  .exercise-list { display: flex; flex-direction: column; gap: 1px; }
+
+  .ex-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px 14px;
+    background: var(--surface);
+    min-height: 52px;
+  }
+  .ex-row:first-child { border-radius: 6px 6px 0 0; }
+  .ex-row:last-child { border-radius: 0 0 6px 6px; }
+  .ex-row:only-child { border-radius: 6px; }
+  .ex-row:active { background: var(--surface2); }
+
+  .ex-name { font-size: 0.9rem; color: var(--text); line-height: 1.3; }
+
+  .ex-detail {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ex-detail.blue { color: var(--cardio); }
+  .ex-detail.gray { color: var(--muted); }
+
+  /* TIP */
+  .tip {
+    margin-top: 16px;
+    padding: 13px 14px;
+    border-left: 2px solid var(--accent);
+    background: rgba(200,240,80,0.04);
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.6;
+    border-radius: 0 6px 6px 0;
+  }
+  .tip.blue { border-color: var(--cardio); background: rgba(80,200,240,0.04); }
+  .tip.gray { border-color: var(--rest); background: rgba(122,120,112,0.04); }
+  .tip strong { color: var(--text); font-weight: 500; }
+
+  /* REST CARDS */
+  .rest-grid { display: flex; flex-direction: column; gap: 1px; }
+
+  .rest-card {
+    background: var(--surface);
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 64px;
+  }
+  .rest-card:first-child { border-radius: 6px 6px 0 0; }
+  .rest-card:last-child { border-radius: 0 0 6px 6px; }
+
+  .rest-icon { font-size: 1.4rem; width: 36px; text-align: center; flex-shrink: 0; }
+  .rest-text-title { font-size: 0.9rem; font-weight: 500; color: var(--text); }
+  .rest-text-desc { font-size: 0.78rem; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+
+  /* STAT CHIPS */
+  .stats-row { display: flex; gap: 6px; margin-top: 20px; flex-wrap: wrap; }
+
+  .stat-chip {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
+  .stat-chip span { color: var(--accent); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Hybrid<span>Train</span></div>
+  <div class="week-switcher">
+    <span class="week-lbl">Sun</span>
+    <button class="week-btn active" id="wkA" onclick="setWeek('A')">Ride</button>
+    <button class="week-btn" id="wkB" onclick="setWeek('B')">Run</button>
+  </div>
+</header>
+
+<nav class="day-nav" id="dayNav"></nav>
+
+<div class="scroll-area">
+  <main id="mainContent"></main>
+</div>
+
+<script>
+const days = [
+  {
+    id:'mon', name:'Mon', label:'Push', type:'strength',
+    title:['Push','Chest Focus'], duration:'45–55',
+    meta:'Warm up 5 min · Pull-aparts, arm circles',
+    sections:[
+      {title:'Compound lifts', exercises:[
+        {name:'Barbell bench press', detail:'4 × 5'},
+        {name:'Incline dumbbell press', detail:'3 × 8–10'},
+      ]},
+      {title:'Accessory', exercises:[
+        {name:'Cable chest fly', detail:'3 × 12–15'},
+        {name:'Dips (chest lean)', detail:'3 × 10–12'},
+        {name:'Landmine press', detail:'3 × 10 ea.'},
+      ]},
+    ],
+    tip:'<strong>Rest 90–120 s</strong> on compounds, <strong>60 s</strong> on accessories to stay in the window.'
+  },
+  {
+    id:'tue', name:'Tue', label:'Pull', type:'strength',
+    title:['Pull','Back + Biceps'], duration:'45–55',
+    meta:'Warm up 5 min · Face pulls, shoulder rotations',
+    sections:[
+      {title:'Compound lifts', exercises:[
+        {name:'Weighted pull-ups', detail:'4 × 5–6'},
+        {name:'Barbell bent-over row', detail:'4 × 6–8'},
+      ]},
+      {title:'Accessory', exercises:[
+        {name:'Single-arm dumbbell row', detail:'3 × 10 ea.'},
+        {name:'Cable face pull', detail:'3 × 15'},
+        {name:'Barbell curl', detail:'3 × 10'},
+        {name:'Hammer curl', detail:'2 × 12'},
+      ]},
+    ],
+    tip:'Focus on <strong>full scapular retraction</strong> on every row — quality over heavy.'
+  },
+  {
+    id:'wed', name:'Wed', label:'Run', type:'cardio',
+    title:['Run','Long Slow Run'], duration:'50–70',
+    meta:'Dynamic warm-up 5 min · Leg swings, high knees',
+    sections:[
+      {title:'Session structure', exercises:[
+        {name:'Warm-up jog', detail:'5 min easy'},
+        {name:'Long slow run', detail:'40–55 min · Z2'},
+        {name:'Cool-down walk', detail:'5 min'},
+        {name:'Static stretch', detail:'5 min'},
+      ]},
+      {title:'Pace guide', exercises:[
+        {name:'Talk test', detail:'Full sentences'},
+        {name:'Effort feel', detail:'4–5 / 10'},
+        {name:'Target HR', detail:'180 − age'},
+      ]},
+    ],
+    tip:'<strong>Stay easy</strong> — legs need to be ready for Thursday\'s leg day.'
+  },
+  {
+    id:'thu', name:'Thu', label:'Legs', type:'strength',
+    title:['Legs','Quad + Posterior'], duration:'50–60',
+    meta:'Warm up 5 min · Leg swings, hip circles, goblet squat',
+    sections:[
+      {title:'Compound lifts', exercises:[
+        {name:'Back squat', detail:'4 × 5'},
+        {name:'Romanian deadlift', detail:'3 × 8–10'},
+      ]},
+      {title:'Accessory', exercises:[
+        {name:'Walking lunges', detail:'3 × 12 ea.'},
+        {name:'Leg press', detail:'3 × 12–15'},
+        {name:'Seated calf raise', detail:'4 × 15'},
+      ]},
+    ],
+    tip:'Ran yesterday — <strong>warm up thoroughly</strong>. First sets may feel heavy; they\'ll loosen up.'
+  },
+  {
+    id:'fri', name:'Fri', label:'Rest', type:'rest',
+    title:['Full','Rest'], duration:'—', meta:'No training',
+    rest:true,
+    restCards:[
+      {icon:'😴', title:'Sleep', desc:'Aim for 8+ hours tonight'},
+      {icon:'🥩', title:'Eat well', desc:'Protein + carbs to refuel from the week'},
+      {icon:'💧', title:'Hydrate', desc:'Especially ahead of Sunday\'s long session'},
+    ],
+    tip:'Friday rest sets you up for a quality Sunday. <strong>Don\'t add junk volume.</strong>'
+  },
+  {
+    id:'sat', name:'Sat', label:'Rest', type:'rest',
+    title:['Full','Rest'], duration:'—', meta:'No training',
+    rest:true,
+    restCards:[
+      {icon:'🚶', title:'Easy walk', desc:'20–30 min max — very low intensity only'},
+      {icon:'🔄', title:'Foam roll', desc:'Legs and upper back'},
+      {icon:'🧘', title:'Stretch', desc:'Hips, thoracic spine, ankles'},
+    ],
+    tip:'Two rest days before Sunday means <strong>genuinely fresh legs</strong> for the long session.'
+  },
+  {
+    id:'sun-a', name:'Sun', label:'Ride', type:'cardio',
+    title:['Long','Ride'], duration:'60–90', meta:'Indoor or outdoor · Week A',
+    sections:[
+      {title:'Session structure', exercises:[
+        {name:'Easy spin warm-up', detail:'10 min · Z2'},
+        {name:'Steady endurance block', detail:'45–65 min · Z2–3'},
+        {name:'Cool-down spin', detail:'10 min easy'},
+      ]},
+      {title:'Optional finisher', exercises:[
+        {name:'Sprint efforts', detail:'4 × 20 s all-out'},
+      ]},
+    ],
+    tip:'<strong>Zone 2 builds mitochondrial density</strong> — the engine of hybrid performance. Resist going hard.'
+  },
+  {
+    id:'sun-b', name:'Sun', label:'Run', type:'cardio',
+    title:['Long','Run'], duration:'60–80', meta:'Easy aerobic effort · Week B',
+    sections:[
+      {title:'Session structure', exercises:[
+        {name:'Warm-up jog', detail:'5 min easy'},
+        {name:'Long slow run', detail:'50–65 min · Z2'},
+        {name:'Cool-down walk', detail:'5–10 min'},
+        {name:'Static stretch', detail:'5 min'},
+      ]},
+      {title:'Pace guide', exercises:[
+        {name:'Talk test', detail:'Full sentences, no gasping'},
+        {name:'Effort feel', detail:'4–5 / 10'},
+        {name:'Target HR', detail:'180 − age'},
+      ]},
+    ],
+    tip:'Week B long run. <strong>Wednesday\'s run builds the base</strong> that makes this feel manageable.'
+  },
+];
+
+let activeWeek = 'A', activeDay = 'mon';
+
+function visibleDays() {
+  const sun = days.find(d => d.id === (activeWeek==='A' ? 'sun-a' : 'sun-b'));
+  return [...days.filter(d => d.id !== 'sun-a' && d.id !== 'sun-b'), sun];
+}
+
+function setWeek(w) {
+  activeWeek = w;
+  document.getElementById('wkA').className = 'week-btn'+(w==='A'?' active':'');
+  document.getElementById('wkB').className = 'week-btn'+(w==='B'?' active':'');
+  if (activeDay==='sun-a'||activeDay==='sun-b') activeDay = w==='A'?'sun-a':'sun-b';
+  renderAll();
+}
+
+function setDay(id) { activeDay = id; renderAll(); }
+
+function ac(type) { return type==='cardio'?'blue':type==='rest'?'gray':''; }
+function hl(type) { return type==='cardio'?'hl-blue':type==='rest'?'hl-gray':'hl'; }
+
+function renderNav() {
+  document.getElementById('dayNav').innerHTML = visibleDays().map(d=>`
+    <div class="day-pill type-${d.type}${d.id===activeDay?' active':''}" onclick="setDay('${d.id}')">
+      <span class="pill-name">${d.name}</span>
+      <span class="pill-label">${d.label}</span>
+      <div class="pill-dot"></div>
+    </div>`).join('');
+}
+
+function renderMain() {
+  const d = visibleDays().find(x=>x.id===activeDay)||visibleDays()[0];
+  const a=ac(d.type), h=hl(d.type);
+
+  let body = d.rest
+    ? `<div class="rest-grid">${d.restCards.map(c=>`
+        <div class="rest-card">
+          <div class="rest-icon">${c.icon}</div>
+          <div><div class="rest-text-title">${c.title}</div><div class="rest-text-desc">${c.desc}</div></div>
+        </div>`).join('')}</div>`
+    : d.sections.map(s=>`
+        <div class="section">
+          <div class="section-title">${s.title}</div>
+          <div class="exercise-list">${s.exercises.map(e=>`
+            <div class="ex-row">
+              <span class="ex-name">${e.name}</span>
+              <span class="ex-detail ${a}">${e.detail}</span>
+            </div>`).join('')}</div>
+        </div>`).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="day-content visible">
+      <div class="content-header">
+        <h2><span class="${h}">${d.title[0]}</span><br>${d.title[1]}</h2>
+        <div class="meta-block">
+          <div class="meta-duration ${a}">${d.duration}</div>
+          <span class="meta-lbl">minutes</span>
+          <div class="meta-note">${d.meta}</div>
+        </div>
+      </div>
+      ${body}
+      <div class="tip ${a}">${d.tip}</div>
+      <div class="stats-row">
+        <div class="stat-chip">Protein <span>1.6–2.2 g/kg</span></div>
+        <div class="stat-chip">Sleep <span>7–9 hrs</span></div>
+        <div class="stat-chip">Deload <span>every 6–8 wks</span></div>
+      </div>
+    </div>`;
+}
+
+function renderAll() { renderNav(); renderMain(); }
+window.setWeek = setWeek;
+window.setDay = setDay;
+renderAll();
+</script>
+</body>
+</html>
