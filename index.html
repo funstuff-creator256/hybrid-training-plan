@@ -418,10 +418,28 @@
 <script>
 const days = [
   {
-    id:'mon', name:'Mon', label:'Push', type:'strength',
+    id:'mon', name:'Mon', label:'Bike', type:'cardio',
+    title:['Bike','Ride'], duration:'45–60',
+    meta:'Moderate effort · Keep HR in Zone 2',
+    tip:'Monday\'s ride primes the week without fatiguing anything you need for Tuesday\'s push. <strong>Stay in Zone 2</strong> — this is activation, not a workout.',
+    sections:[
+      {title:'Session structure', exercises:[
+        {name:'Easy spin warm-up', detail:'10 min · Z1'},
+        {name:'Steady ride', detail:'30–40 min · Z2'},
+        {name:'Cool-down spin', detail:'5 min easy'},
+      ]},
+      {title:'Zone 2 guide', exercises:[
+        {name:'HR target', detail:'60–70% max HR'},
+        {name:'Talk test', detail:'Full sentences'},
+        {name:'Effort feel', detail:'4–5 / 10'},
+      ]},
+    ]
+  },
+  {
+    id:'tue', name:'Tue', label:'Push', type:'strength',
     title:['Push','Strength Focus'], duration:'60–75',
-    meta:'6 exercises · Warm up 5 min',
-    tip:'<strong>Heavy compounds first</strong> while CNS is fresh. Keep isolation work controlled — no momentum.',
+    meta:'6 exercises · Chest, shoulders, triceps',
+    tip:'<strong>Compounds first</strong> while CNS is fresh — 4×6–10 on the big lifts. Isolation work is controlled, no momentum.',
     exercises:[
       {num:'01', name:'Flat Bench Press', alt:'Primary upper body strength lift', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Strong setup','Controlled descent','Explosive press','Chest leads']},
       {num:'02', name:'Incline Bench Press', alt:'Upper chest strength and width', sets:'3–4', reps:'6–8', rest:'90 s', focus:['Low incline','Deep stretch','Controlled press']},
@@ -432,10 +450,29 @@ const days = [
     ]
   },
   {
-    id:'tue', name:'Tue', label:'Pull', type:'strength',
+    id:'wed', name:'Wed', label:'5K', type:'cardio',
+    title:['5K','Run'], duration:'25–40',
+    meta:'Easy to moderate pace · Focus on time-on-feet',
+    tip:'Placed between two strength days — <strong>keep the pace honest, not a race effort</strong>. This shouldn\'t blunt Thursday\'s pull session.',
+    sections:[
+      {title:'Session structure', exercises:[
+        {name:'Dynamic warm-up', detail:'5 min · Leg swings, high knees'},
+        {name:'5K run', detail:'Easy to moderate pace'},
+        {name:'Cool-down walk', detail:'3–5 min'},
+        {name:'Static stretch', detail:'5 min'},
+      ]},
+      {title:'Pace guide', exercises:[
+        {name:'Effort feel', detail:'5–6 / 10'},
+        {name:'Talk test', detail:'Short sentences OK'},
+        {name:'Goal', detail:'Consistent pace, not fast'},
+      ]},
+    ]
+  },
+  {
+    id:'thu', name:'Thu', label:'Pull', type:'strength',
     title:['Pull','Strength Focus'], duration:'60–75',
-    meta:'6 exercises · Warm up 5 min',
-    tip:'<strong>Drive elbows, not hands</strong> on all pulls. The biceps are a finisher — don\'t let them take over.',
+    meta:'6 exercises · Back, biceps, rear delts',
+    tip:'<strong>Pull-ups and rows anchor this session.</strong> Drive elbows down and back — not hands. Biceps are a finisher, don\'t let them take over.',
     exercises:[
       {num:'01', name:'Pull Ups', alt:'or Lat Pulldown', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Drive elbows down','Full stretch at top','No momentum']},
       {num:'02', name:'Chest Supported Row', alt:'or Barbell Row', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Neutral spine','Strong scapular squeeze']},
@@ -446,107 +483,79 @@ const days = [
     ]
   },
   {
-    id:'wed', name:'Wed', label:'Run', type:'cardio',
-    title:['Run','Long Slow Run'], duration:'50–70',
-    meta:'Dynamic warm-up 5 min · Leg swings, high knees',
-    tip:'<strong>Stay easy</strong> — legs need to be ready for Thursday\'s leg day.',
-    sections:[
-      {title:'Session structure', exercises:[
-        {name:'Warm-up jog', detail:'5 min easy'},
-        {name:'Long slow run', detail:'40–55 min · Z2'},
-        {name:'Cool-down walk', detail:'5 min'},
-        {name:'Static stretch', detail:'5 min'},
-      ]},
-      {title:'Pace guide', exercises:[
-        {name:'Talk test', detail:'Full sentences'},
-        {name:'Effort feel', detail:'4–5 / 10'},
-        {name:'Target HR', detail:'180 − age'},
-      ]},
-    ]
-  },
-  {
-    id:'thu', name:'Thu', label:'Legs', type:'strength',
+    id:'fri', name:'Fri', label:'Legs', type:'strength',
     title:['Legs','Strength Focus'], duration:'60–70',
-    meta:'5 exercises · Warm up 5 min',
-    tip:'<strong>Hip hinge on the RDL</strong> — don\'t rush the eccentric. Let the hamstrings stretch fully.',
+    meta:'5 exercises · Squat, hinge, unilateral',
+    tip:'<strong>Big fuel and sleep tonight</strong> — Saturday is your buffer. If you choose cardio Saturday, keep it low impact. Save hard runs for Wednesday when legs are fresh.',
     exercises:[
-      {num:'01', name:'Romanian Deadlift', alt:'Posterior chain strength', sets:'4', reps:'5–8', rest:'2 min', focus:['Hip hinge','Hamstring stretch','Neutral spine','Don\'t rush eccentric']},
-      {num:'02', name:'Leg Press', alt:'Primary quad compound', sets:'4', reps:'6–10', rest:'2 min', focus:['Full depth under control','Drive through mid foot and heels','No aggressive lockout']},
-      {num:'03', name:'Leg Extension Machine', alt:'Quad isolation', sets:'3', reps:'10–15', rest:'60–90 s', focus:['1 s squeeze at top','Slow controlled lowering']},
+      {num:'01', name:'Back Squat', alt:'Primary quad strength', sets:'4–5', reps:'4–6', rest:'2 min', focus:['Brace hard','Full depth','Drive knees out','Chest up']},
+      {num:'02', name:'Romanian Deadlift', alt:'Posterior chain strength', sets:'4', reps:'5–8', rest:'2 min', focus:['Hip hinge','Hamstring stretch','Neutral spine','Don\'t rush eccentric']},
+      {num:'03', name:'Bulgarian Split Squat', alt:'Unilateral quad and glute', sets:'3', reps:'8–10 ea.', rest:'90 s', focus:['Front foot loaded','Upright torso','Control the descent']},
       {num:'04', name:'Leg Curl Machine', alt:'Hamstring isolation', sets:'3', reps:'10–15', rest:'60–90 s', focus:['Full range of motion','Strong squeeze','No momentum']},
       {num:'05', name:'Standing Calf Raises', alt:'', sets:'4', reps:'12–20', rest:'45–60 s', focus:['Full stretch at bottom','Pause at top']},
     ]
   },
   {
-    id:'fri', name:'Fri', label:'Rest', type:'rest',
-    title:['Full','Rest'], duration:'—', meta:'No training',
-    rest:true,
-    restCards:[
-      {icon:'😴', title:'Sleep', desc:'Aim for 8+ hours tonight'},
-      {icon:'🥩', title:'Eat well', desc:'Protein + carbs to refuel from the week'},
-      {icon:'💧', title:'Hydrate', desc:'Especially ahead of Sunday\'s long session'},
-    ],
-    tip:'Friday rest sets you up for a quality Sunday. <strong>Don\'t add junk volume.</strong>'
-  },
-  {
-    id:'sat', name:'Sat', label:'Rest', type:'rest',
-    title:['Full','Rest'], duration:'—', meta:'No training',
-    rest:true,
-    restCards:[
-      {icon:'🚶', title:'Easy walk', desc:'20–30 min max — very low intensity only'},
-      {icon:'🔄', title:'Foam roll', desc:'Legs and upper back'},
-      {icon:'🧘', title:'Stretch', desc:'Hips, thoracic spine, ankles'},
-    ],
-    tip:'Two rest days before Sunday means <strong>genuinely fresh legs</strong> for the long session.'
-  },
-  {
-    id:'sun', name:'Sun', label:'Long', type:'cardio',
-    title:['Long','Session'], duration:'60–90', meta:'Alternate each week',
-    tip:'<strong>Zone 2 is the goal</strong> — both ride and run build your aerobic engine. Resist going hard.',
-    sunData: {
+    id:'sat', name:'Sat', label:'?', type:'optional',
+    title:['Cardio','or Rest'], duration:'0–60', meta:'Optional · Listen to your body',
+    optional: true,
+    satData: {
       ride: {
-        title:['Long','Ride'], duration:'60–90', meta:'Indoor or outdoor · Week A',
+        title:['Easy','Bike Ride'], duration:'30–45', meta:'Low impact · Legs still loaded from Friday',
         sections:[
           {title:'Session structure', exercises:[
-            {name:'Easy spin warm-up', detail:'10 min · Z2'},
-            {name:'Steady endurance block', detail:'45–65 min · Z2–3'},
-            {name:'Cool-down spin', detail:'10 min easy'},
-          ]},
-          {title:'Optional finisher', exercises:[
-            {name:'Sprint efforts', detail:'4 × 20 s all-out'},
+            {name:'Easy spin', detail:'30–45 min · Z1–2'},
+            {name:'Keep it mellow', detail:'No hard efforts'},
           ]},
         ],
-        tip:'<strong>Zone 2 builds mitochondrial density</strong> — the engine of hybrid performance. Resist going hard.'
+        tip:'<strong>Best choice after Friday legs.</strong> Easy cycling flushes the legs without adding stress. Keep HR under 65% max.'
       },
       run: {
-        title:['Long','Run'], duration:'60–80', meta:'Easy aerobic effort · Week B',
+        title:['Easy','Run'], duration:'20–30', meta:'Only if legs feel good',
         sections:[
           {title:'Session structure', exercises:[
-            {name:'Warm-up jog', detail:'5 min easy'},
-            {name:'Long slow run', detail:'50–65 min · Z2'},
-            {name:'Cool-down walk', detail:'5–10 min'},
-            {name:'Static stretch', detail:'5 min'},
-          ]},
-          {title:'Pace guide', exercises:[
-            {name:'Talk test', detail:'Full sentences, no gasping'},
-            {name:'Effort feel', detail:'4–5 / 10'},
-            {name:'Target HR', detail:'180 − age'},
+            {name:'Easy jog only', detail:'20–30 min · Z1–2'},
+            {name:'Stop if legs are heavy', detail:'Rest is the better call'},
           ]},
         ],
-        tip:'Week B long run. <strong>Wednesday\'s run builds the base</strong> that makes this feel manageable.'
+        tip:'<strong>Only run if legs genuinely feel good.</strong> An easy bike is safer here — save quality run efforts for Wednesday.'
+      },
+      rest: {
+        title:['Full','Rest'], duration:'—', meta:'Best if legs are sore',
+        sections:[
+          {title:'Recovery', exercises:[
+            {name:'Foam roll', detail:'Quads, hamstrings, glutes'},
+            {name:'Easy walk', detail:'10–20 min optional'},
+            {name:'Stretch', detail:'Hips, ankles, thoracic'},
+          ]},
+        ],
+        tip:'<strong>Rest is the smart call</strong> if legs are sore from Friday. Sunday is full rest — two easy days sets up a strong week ahead.'
       }
     }
+  },
+  {
+    id:'sun', name:'Sun', label:'Rest', type:'rest',
+    title:['Full','Rest'], duration:'—', meta:'Recovery · Light walk or stretching only',
+    rest: true,
+    restCards:[
+      {icon:'😴', title:'Sleep', desc:'Prioritise sleep Fri–Sun to absorb the week\'s load'},
+      {icon:'🚶', title:'Light walk', desc:'10–20 min easy walk if you want to move'},
+      {icon:'🧘', title:'Stretching', desc:'Hips, thoracic spine, calves — nothing intense'},
+    ],
+    tip:'<strong>3 strength + 2–3 cardio sessions is solid weekly volume.</strong> Full rest Sunday means you start Monday\'s ride properly recovered.'
   },
 ];
 
 let activeDay = 'mon';
-let sunMode = 'ride'; // 'ride' or 'run'
+let sunMode = 'ride';
+let satMode = 'ride';
 
 function setDay(id) { activeDay = id; renderAll(); }
 function setSunMode(m) { sunMode = m; renderAll(); }
+function setSatMode(m) { satMode = m; renderAll(); }
 
-function ac(type) { return type==='cardio'?'blue':type==='rest'?'gray':''; }
-function hl(type) { return type==='cardio'?'hl-blue':type==='rest'?'hl-gray':'hl'; }
+function ac(type) { return type==='cardio'||type==='optional'?'blue':type==='rest'?'gray':''; }
+function hl(type) { return type==='cardio'||type==='optional'?'hl-blue':type==='rest'?'hl-gray':'hl'; }
 
 function renderExercises(d, a) {
   if (d.exercises) {
@@ -587,9 +596,13 @@ function renderExercises(d, a) {
     </div>`).join('');
 }
 
+function btnStyle(active, color) {
+  return `font-family:'Barlow Condensed',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 12px;border:1px solid ${active?color:'var(--border2)'};background:${active?color:'transparent'};color:${active?'#0e0f11':'var(--muted)'};border-radius:4px;cursor:pointer;min-height:36px;`;
+}
+
 function renderNav() {
   document.getElementById('dayNav').innerHTML = days.map(d=>`
-    <div class="day-pill type-${d.type}${d.id===activeDay?' active':''}" onclick="setDay('${d.id}')">
+    <div class="day-pill type-${d.type==='optional'?'cardio':d.type}${d.id===activeDay?' active':''}" onclick="setDay('${d.id}')">
       <span class="pill-name">${d.name}</span>
       <span class="pill-label">${d.label}</span>
       <div class="pill-dot"></div>
@@ -599,7 +612,6 @@ function renderNav() {
 function renderMain() {
   const d = days.find(x=>x.id===activeDay)||days[0];
   const a = ac(d.type), h = hl(d.type);
-
   let title = d.title, duration = d.duration, meta = d.meta, tip = d.tip;
   let body = '';
 
@@ -609,14 +621,25 @@ function renderMain() {
         <div class="rest-icon">${c.icon}</div>
         <div><div class="rest-text-title">${c.title}</div><div class="rest-text-desc">${c.desc}</div></div>
       </div>`).join('')}</div>`;
+  } else if (d.satData) {
+    const sd = d.satData[satMode];
+    title = sd.title; duration = sd.duration; meta = sd.meta; tip = sd.tip;
+    const toggle = `
+      <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Today</span>
+        <button onclick="setSatMode('ride')" style="${btnStyle(satMode==='ride','var(--cardio)')}">Bike</button>
+        <button onclick="setSatMode('run')" style="${btnStyle(satMode==='run','var(--cardio)')}">Run</button>
+        <button onclick="setSatMode('rest')" style="${btnStyle(satMode==='rest','var(--rest)')}">Rest</button>
+      </div>`;
+    body = toggle + renderExercises(sd, a);
   } else if (d.sunData) {
     const sd = d.sunData[sunMode];
     title = sd.title; duration = sd.duration; meta = sd.meta; tip = sd.tip;
     const toggle = `
       <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;">
         <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-right:4px;">This week</span>
-        <button onclick="setSunMode('ride')" style="font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border:1px solid ${sunMode==='ride'?'var(--cardio)':'var(--border2)'};background:${sunMode==='ride'?'var(--cardio)':'transparent'};color:${sunMode==='ride'?'#0e0f11':'var(--muted)'};border-radius:4px;cursor:pointer;min-height:36px;">Ride</button>
-        <button onclick="setSunMode('run')" style="font-family:'Barlow Condensed',sans-serif;font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:7px 14px;border:1px solid ${sunMode==='run'?'var(--cardio)':'var(--border2)'};background:${sunMode==='run'?'var(--cardio)':'transparent'};color:${sunMode==='run'?'#0e0f11':'var(--muted)'};border-radius:4px;cursor:pointer;min-height:36px;">Run</button>
+        <button onclick="setSunMode('ride')" style="${btnStyle(sunMode==='ride','var(--cardio)')}">Ride</button>
+        <button onclick="setSunMode('run')" style="${btnStyle(sunMode==='run','var(--cardio)')}">Run</button>
       </div>`;
     body = toggle + renderExercises(sd, a);
   } else {
@@ -646,6 +669,7 @@ function renderMain() {
 function renderAll() { renderNav(); renderMain(); }
 window.setDay = setDay;
 window.setSunMode = setSunMode;
+window.setSatMode = setSatMode;
 renderAll();
 </script>
 </body>
