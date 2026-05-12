@@ -312,6 +312,156 @@
   }
   .stat-chip span { color: var(--accent); font-weight: 500; }
 
+  /* SET CHECKBOXES */
+  .sets-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .set-box {
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--muted);
+    transition: all 0.15s;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .set-box:active { transform: scale(0.92); }
+  .set-box.done {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0e0f11;
+  }
+  .set-box.done.cardio {
+    background: var(--cardio);
+    border-color: var(--cardio);
+  }
+
+  .sets-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 10px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* REST TIMER OVERLAY */
+  .timer-overlay {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #0e0f11;
+    border-top: 1px solid var(--border2);
+    padding: 16px 20px calc(var(--safe-bottom) + 16px);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 100;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .timer-overlay.visible { transform: translateY(0); }
+
+  .timer-ring-wrap {
+    flex-shrink: 0;
+    position: relative;
+    width: 56px; height: 56px;
+  }
+
+  .timer-ring-wrap svg {
+    position: absolute; top: 0; left: 0;
+    transform: rotate(-90deg);
+  }
+
+  .timer-ring-bg { fill: none; stroke: var(--surface2); stroke-width: 3; }
+  .timer-ring-progress {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .timer-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .timer-info { flex: 1; }
+  .timer-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .timer-exercise {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .timer-next {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .timer-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .timer-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted);
+    min-height: 40px;
+  }
+
+  .timer-btn.skip {
+    background: var(--accent);
+    color: #0e0f11;
+    border-color: var(--accent);
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    height: 2px;
+    background: var(--border);
+    margin-bottom: 16px;
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 1px;
+    transition: width 0.3s ease;
+  }
+  .progress-bar-fill.blue { background: var(--cardio); }
+
   /* EXERCISE CARD (detailed) */
   .ex-card {
     background: var(--surface);
@@ -546,21 +696,145 @@ const days = [
   },
 ];
 
+// ── STATE ──────────────────────────────────────────────
 let activeDay = 'mon';
-let sunMode = 'ride';
 let satMode = 'ride';
+let checkedSets = {}; // key: "dayId-exIdx-setIdx"
 
-function setDay(id) { activeDay = id; renderAll(); }
-function setSunMode(m) { sunMode = m; renderAll(); }
-function setSatMode(m) { satMode = m; renderAll(); }
+// ── TIMER STATE ────────────────────────────────────────
+let timerInterval = null;
+let timerTotal = 0;
+let timerRemaining = 0;
+let timerExName = '';
+let timerNextName = '';
+const CIRCUMFERENCE = 150.8;
 
+function parseRestSeconds(restStr) {
+  if (!restStr) return 90;
+  const s = restStr.toLowerCase();
+  if (s.includes('2 min')) return 120;
+  if (s.includes('90')) return 90;
+  if (s.includes('60–90') || s.includes('60-90')) return 75;
+  if (s.includes('45–60') || s.includes('45-60')) return 52;
+  if (s.includes('60')) return 60;
+  if (s.includes('45')) return 45;
+  return 90;
+}
+
+function startTimer(seconds, exName, nextName) {
+  clearInterval(timerInterval);
+  timerTotal = seconds;
+  timerRemaining = seconds;
+  timerExName = exName;
+  timerNextName = nextName;
+
+  document.getElementById('timerExName').textContent = exName;
+  document.getElementById('timerNextUp').textContent = nextName ? '↓ ' + nextName + ' next' : '';
+  document.getElementById('timerOverlay').classList.add('visible');
+  updateTimerDisplay();
+
+  timerInterval = setInterval(() => {
+    timerRemaining--;
+    updateTimerDisplay();
+    if (timerRemaining <= 0) finishTimer();
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  document.getElementById('timerDisplay').textContent =
+    m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${timerRemaining}s`;
+  const pct = timerTotal > 0 ? timerRemaining / timerTotal : 0;
+  document.getElementById('timerRing').style.strokeDashoffset =
+    CIRCUMFERENCE * (1 - pct);
+}
+
+function finishTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+  if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]);
+  document.getElementById('timerOverlay').classList.remove('visible');
+}
+
+function cancelTimer() { finishTimer(); }
+function skipTimer() { finishTimer(); }
+
+// ── CHECKBOX LOGIC ─────────────────────────────────────
+function toggleSet(dayId, exIdx, setIdx, totalSets, restSecs, exName, nextExName) {
+  const key = `${dayId}-${exIdx}-${setIdx}`;
+  const wasChecked = checkedSets[key];
+
+  if (wasChecked) {
+    delete checkedSets[key];
+    clearInterval(timerInterval);
+    document.getElementById('timerOverlay').classList.remove('visible');
+  } else {
+    checkedSets[key] = true;
+    // Start rest timer — last set starts shorter timer
+    const isLastSet = setIdx === totalSets - 1;
+    const secs = isLastSet ? Math.round(restSecs * 0.5) : restSecs;
+    const label = exName + (isLastSet ? ' (last set)' : ` · Set ${setIdx + 1}`);
+    startTimer(secs, label, isLastSet ? nextExName : '');
+  }
+  rerenderSets(dayId, exIdx);
+}
+
+function rerenderSets(dayId, exIdx) {
+  const el = document.querySelector(`[data-sets-key="${dayId}-${exIdx}"]`);
+  if (!el) return;
+  const total = parseInt(el.dataset.total);
+  const restSecs = parseInt(el.dataset.rest);
+  const exName = el.dataset.exname;
+  const nextName = el.dataset.nextname;
+  const isCardio = el.dataset.cardio === 'true';
+  el.innerHTML = renderSetsHTML(dayId, exIdx, total, restSecs, exName, nextName, isCardio);
+}
+
+function renderSetsHTML(dayId, exIdx, total, restSecs, exName, nextName, isCardio) {
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    const key = `${dayId}-${exIdx}-${i}`;
+    const done = !!checkedSets[key];
+    const cardioClass = isCardio ? ' cardio' : '';
+    html += `<div class="set-box${done ? ' done' + cardioClass : ''}"
+      onclick="toggleSet('${dayId}',${exIdx},${i},${total},${restSecs},'${exName.replace(/'/g,"\\'")}','${nextName.replace(/'/g,"\\'")}')">
+      ${done ? '✓' : i + 1}
+    </div>`;
+  }
+  return html;
+}
+
+function maxSets(setsStr) {
+  const m = setsStr.match(/(\d+)/g);
+  return m ? parseInt(m[m.length - 1]) : 3;
+}
+
+// ── RENDER ─────────────────────────────────────────────
 function ac(type) { return type==='cardio'||type==='optional'?'blue':type==='rest'?'gray':''; }
 function hl(type) { return type==='cardio'||type==='optional'?'hl-blue':type==='rest'?'hl-gray':'hl'; }
 
+function completedCount(dayId, exercises) {
+  if (!exercises) return { done: 0, total: 0 };
+  let done = 0, total = 0;
+  exercises.forEach((e, i) => {
+    const n = maxSets(e.sets);
+    total += n;
+    for (let s = 0; s < n; s++) {
+      if (checkedSets[`${dayId}-${i}-${s}`]) done++;
+    }
+  });
+  return { done, total };
+}
+
 function renderExercises(d, a) {
   if (d.exercises) {
-    return `<div class="exercise-list">${d.exercises.map(e => `
-      <div class="ex-card">
+    const isCardio = a === 'blue';
+    return `<div class="exercise-list">${d.exercises.map((e, exIdx) => {
+      const total = maxSets(e.sets);
+      const restSecs = parseRestSeconds(e.rest);
+      const nextName = exIdx < d.exercises.length - 1 ? d.exercises[exIdx+1].name : '';
+      return `<div class="ex-card">
         <div class="ex-card-header">
           <div class="ex-card-left">
             <div class="ex-card-num">Exercise ${e.num}</div>
@@ -583,7 +857,18 @@ function renderExercises(d, a) {
           </div>
         </div>
         <div class="ex-focus">${e.focus.map(f=>`<span class="focus-tag">${f}</span>`).join('')}</div>
-      </div>`).join('')}</div>`;
+        <span class="sets-label">Tap to log set · timer auto-starts</span>
+        <div class="sets-row"
+          data-sets-key="${d.id}-${exIdx}"
+          data-total="${total}"
+          data-rest="${restSecs}"
+          data-exname="${e.name}"
+          data-nextname="${nextName}"
+          data-cardio="${isCardio}">
+          ${renderSetsHTML(d.id, exIdx, total, restSecs, e.name, nextName, isCardio)}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
   }
   return d.sections.map(s=>`
     <div class="section">
@@ -613,7 +898,7 @@ function renderMain() {
   const d = days.find(x=>x.id===activeDay)||days[0];
   const a = ac(d.type), h = hl(d.type);
   let title = d.title, duration = d.duration, meta = d.meta, tip = d.tip;
-  let body = '';
+  let body = '', exercises = null;
 
   if (d.rest) {
     body = `<div class="rest-grid">${d.restCards.map(c=>`
@@ -624,26 +909,24 @@ function renderMain() {
   } else if (d.satData) {
     const sd = d.satData[satMode];
     title = sd.title; duration = sd.duration; meta = sd.meta; tip = sd.tip;
-    const toggle = `
-      <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
-        <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Today</span>
-        <button onclick="setSatMode('ride')" style="${btnStyle(satMode==='ride','var(--cardio)')}">Bike</button>
-        <button onclick="setSatMode('run')" style="${btnStyle(satMode==='run','var(--cardio)')}">Run</button>
-        <button onclick="setSatMode('rest')" style="${btnStyle(satMode==='rest','var(--rest)')}">Rest</button>
-      </div>`;
-    body = toggle + renderExercises(sd, a);
-  } else if (d.sunData) {
-    const sd = d.sunData[sunMode];
-    title = sd.title; duration = sd.duration; meta = sd.meta; tip = sd.tip;
-    const toggle = `
-      <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;">
-        <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-right:4px;">This week</span>
-        <button onclick="setSunMode('ride')" style="${btnStyle(sunMode==='ride','var(--cardio)')}">Ride</button>
-        <button onclick="setSunMode('run')" style="${btnStyle(sunMode==='run','var(--cardio)')}">Run</button>
-      </div>`;
+    const toggle = `<div style="display:flex;gap:6px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-right:2px;">Today</span>
+      <button onclick="setSatMode('ride')" style="${btnStyle(satMode==='ride','var(--cardio)')}">Bike</button>
+      <button onclick="setSatMode('run')" style="${btnStyle(satMode==='run','var(--cardio)')}">Run</button>
+      <button onclick="setSatMode('rest')" style="${btnStyle(satMode==='rest','var(--rest)')}">Rest</button>
+    </div>`;
     body = toggle + renderExercises(sd, a);
   } else {
+    exercises = d.exercises || null;
     body = renderExercises(d, a);
+  }
+
+  // Progress bar for strength days
+  let progressHTML = '';
+  if (exercises) {
+    const { done, total } = completedCount(d.id, exercises);
+    const pct = total > 0 ? (done / total) * 100 : 0;
+    progressHTML = `<div class="progress-bar-wrap"><div class="progress-bar-fill${a==='blue'?' blue':''}" style="width:${pct}%"></div></div>`;
   }
 
   document.getElementById('mainContent').innerHTML = `
@@ -656,6 +939,7 @@ function renderMain() {
           <div class="meta-note">${meta}</div>
         </div>
       </div>
+      ${progressHTML}
       ${body}
       <div class="tip ${a}">${tip}</div>
       <div class="stats-row">
@@ -666,11 +950,51 @@ function renderMain() {
     </div>`;
 }
 
+// ── AUTO TODAY ─────────────────────────────────────────
+function autoToday() {
+  const map = ['sun','mon','tue','wed','thu','fri','sat'];
+  const todayId = map[new Date().getDay()];
+  if (days.find(d => d.id === todayId)) activeDay = todayId;
+}
+
+function setDay(id) {
+  activeDay = id;
+  cancelTimer();
+  renderAll();
+}
+function setSatMode(m) { satMode = m; renderAll(); }
+
 function renderAll() { renderNav(); renderMain(); }
+
 window.setDay = setDay;
-window.setSunMode = setSunMode;
 window.setSatMode = setSatMode;
+window.toggleSet = toggleSet;
+window.cancelTimer = cancelTimer;
+window.skipTimer = skipTimer;
+
+autoToday();
 renderAll();
 </script>
-</body>
+<!-- REST TIMER OVERLAY -->
+<div class="timer-overlay" id="timerOverlay">
+  <div class="timer-ring-wrap">
+    <svg width="56" height="56" viewBox="0 0 56 56">
+      <circle class="timer-ring-bg" cx="28" cy="28" r="24"/>
+      <circle class="timer-ring-progress" id="timerRing" cx="28" cy="28" r="24"
+        stroke-dasharray="150.8" stroke-dashoffset="0"/>
+    </svg>
+    <div class="timer-center" id="timerDisplay">—</div>
+  </div>
+  <div class="timer-info">
+    <div class="timer-title">Rest timer</div>
+    <div class="timer-exercise" id="timerExName">—</div>
+    <div class="timer-next" id="timerNextUp"></div>
+  </div>
+  <div class="timer-actions">
+    <button class="timer-btn" onclick="cancelTimer()">Cancel</button>
+    <button class="timer-btn skip" onclick="skipTimer()">Skip</button>
+  </div>
+</div>
+
+
 </html>
